@@ -370,41 +370,149 @@ public:
         return ans + x;
     }
 
-    //8.字符串转换整数
+    //8.字符串转换整数 难度：中等
+    //我的解题思路：
+    //  先处理丢弃前导空格
+    //  再根据非空格第一个字符判断是否为数字，以及正负号
+    //  中间遇到非数字字符或者字符串遍历完就结束
+    //  可能需要将数字字符（char）转换成整型（int）
+    //  该题也需要判断溢出
+
+    //成功通过，2024/8/29
     int myAtoi(string s) {
-        int result = 0;
-        int temp = 0;
-        int i = 0;
-        bool flag = true;
-        while (s[i] == ' ')
-        {
+        int ans = 0;
+        bool flag = true; // 标记正负号
+        
+        while (s.front() == ' ') // 丢弃前导空格
             s.erase(s.begin());
-            i++;
-        }
-        if (s[0] == '-')
+           
+        if (s.front() != '-' && s.front() != '+' && !isdigit(s.front())) // 第一个非空字符的判断
+            return 0;
+
+        if (s.front() == '-')
         {
             s.erase(s.begin());
             flag = false;
         }
+        else if (s.front() == '+')
+            s.erase(s.begin());
            
         for (int i = 0; i < s.size(); i++)
         {
-            if (isdigit(s[i]))
-                temp = temp * 10 + int(s[i]);
+            if (!isdigit(s[i])) // 遇到非数字提前结束
+                break;
+
+            int tmp = int(s[i]) - 48; // 利用ASCII整型转换
+
+            if (flag) // 正负数分开讨论
+            {
+                if (ans > (INT_MAX - tmp) / 10) // 溢出判断，下同
+                    return INT_MAX;
+                ans = ans * 10 + tmp;
+            }
             else
             {
-                if (flag && temp <= INT_MAX)
-                    return temp;
-                else if (flag && temp > INT_MAX)
-                    return INT_MAX;
-                else if (!flag && result - temp > INT_MIN)
-                    return result - temp;
-                else if (!flag && result - temp < INT_MIN)
+                if (ans < (INT_MIN + tmp) / 10)
                     return INT_MIN;
+                ans = ans * 10 - tmp;
+            }   
+        }
+        return ans;
+    }
+
+    //10.正则表达式匹配 难度：困难 提示：递归，动态规划
+    //我的解题思路：
+    //  每匹配掉一个字符，问题规模就会变小一点
+    //  当待匹配字符串为空时，说明匹配成功，返回true
+    //  由于'*'的存在，字符规律p需要多看一位，应该可以用双指针来解决
+    //  匹配模式有如下几种：(字母)--(字母)，(字母)--(.)，(字母)--(字母*)，(字母)--(.*)
+    
+    //第一次提交错误：s="ab",p="abc" 答案应为false，我得到的是true 显然是p中最后一位'c'导致的，如果为'c*'则为true
+    //第二次提交错误：s="aaa",p="a*a" 答案应为true，我得到的是false 问题在于a*把aaa匹配完了，p的最后一个a无法匹配导致false
+    //屎山最后还是没能通过，2024/8/29
+    //内心OS：想法是到位了，代码能力太差了
+    bool isMatch(string s, string p) {
+        if (s.empty() && p.size() > 2 && p[1] == '*')
+        {
+            return isMatch(s, p.substr(2));
+        }
+        else if (s.empty() && p.size() == 2 && p[1] == '*')
+            return true;
+        //else if (s.size() == 1 && p.size() == 1 && (s.front() == p.front() || p.front() == '.'))
+        else if(s.empty() && p.empty())
+            return true;
+        else if (!s.empty() && p.empty())
+            return false;
+        else if (s.empty() && p.size() > 2 && p[1] != '*')
+            return false;
+        else if (s.front() != p.front() && p.front() != '.' && p.size() == 1)
+            return false;
+        else if (s.empty() && p.size() == 1)
+            return false;
+        if (p.front() == '.' && ((p.size() > 1 && p[1] != '*') || p.size() == 1))
+        {
+            return isMatch(s.substr(1), p.substr(1));
+        }
+        else if (p.front() == '.' && p.size() > 1 && p[1] == '*')
+        {
+            return isMatch(s.substr(1), p) || isMatch(s, p.substr(2));
+        }
+        else if (s.front() == p.front() && p.size() > 1 && p[1] == '*')
+        {
+            return isMatch(s.substr(1), p) || isMatch(s, p.substr(2));
+        }
+        else if (s.front() != p.front() && p.size() > 1 && p[1] == '*')
+        {
+            return isMatch(s, p.substr(2));
+        }
+        else
+        {
+            return isMatch(s.substr(1), p.substr(1));
+        }
+    }
+
+    //官方题解
+    //作者：力扣官方题解
+    //链接：https ://leetcode.cn/problems/regular-expression-matching/solutions/295977/zheng-ze-biao-da-shi-pi-pei-by-leetcode-solution/
+    //最重要的是写出正确的状态转移方程，另外每个状态最好用矩阵来保存
+    bool isMatch(string s, string p) {
+        int m = s.size();
+        int n = p.size();
+        auto matches = [&](int i, int j) { //lambda 表达式——匿名函数,用来判断单个字符是否匹配
+            if (i == 0)
+                return false;
+            if (p[j - 1] == '.')
+                return true;
+            return s[i - 1] == p[j - 1];
+        };
+
+        vector<vector<int>> f(m + 1, vector<int>(n + 1));
+        f[0][0] = true;
+        for (int i = 0; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                if (p[j - 1] == '*') {
+                    // 对应  p[j] == '*'
+                    // matches(i, j - 1)无论能否匹配 
+                    // f[i][j] |= f[i][j - 2]都会存在 
+                    // 为空  或  跳过
+                    f[i][j] |= f[i][j - 2];
+                    if (matches(i, j - 1)) {
+                        //  匹配 使用组合
+                        f[i][j] |= f[i - 1][j];
+                    }
+                }
+                else {
+                    // 对应  p[j] != '*'
+                    if (matches(i, j)) {
+                        f[i][j] |= f[i - 1][j - 1];
+                    }
+                }
             }
         }
-
+        return f[m][n];
     }
+
+    
 
     //15.三数之和
     vector<vector<int>> threeSum(vector<int>& nums) {
