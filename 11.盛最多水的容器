@@ -1,0 +1,31 @@
+    //11.盛最多水的容器 难度：中等 提示：双指针
+    //我的解题思路：
+    //  决定容积的只有两个因素：长和高，高实际上由较短的边界决定
+    //  从两边往中间收缩，这样可以保证容器长度递减
+    //  每次移动边界中较短的那一个，这样保证容器高度始终由更短的边决定  
+
+    //成功通过，2024/8/30
+    //但是用时好像并不理想，可能一些小步骤上还有待提升
+    int maxArea(vector<int>& height) {
+        int n = height.size();
+        int left = 0;
+        int right = n - 1;
+        int ans = 0;
+
+        while (left < right)
+        {
+            int l = height[left];
+            int r = height[right];
+            if (l <= r)
+            {
+                ans = max(ans, l * (right - left));
+                left += 1;
+            }
+            else
+            {
+                ans = max(ans, r * (right - left));
+                right -= 1;
+            }
+        }
+        return ans;
+    }
