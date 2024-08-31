@@ -1,0 +1,27 @@
+    //12.整数转罗马数字 难度：中等 提示：哈希表
+    //我的解题思路：
+    //  使每位数字和罗马数字一一对应，使用unordered_map实现
+    //  unordered_map参考链接：https://blog.csdn.net/jpc20144055069/article/details/108170073
+
+    //成功通过，2024/8/30
+    //但是用时和内存消耗都很大
+    string intToRoman(int num) {
+        unordered_map<int, string>umap{
+            {1,"I"},{2,"II"},{3,"III"},{4,"IV"},{5,"V"},{6,"VI"},{7,"VII"},{8,"VIII"},{9,"IX"},
+            {10,"X"},{20,"XX"},{30,"XXX"},{40,"XL"},{50,"L"},{60,"LX"},{70,"LXX"},{80,"LXXX"},{90,"XC"},
+            {100,"C"},{200,"CC"},{300,"CCC"},{400,"CD"},{500,"D"},{600,"DC"},{700,"DCC"},{800,"DCCC"},{900,"CM"},
+            {1000,"M"},{2000,"MM"},{3000,"MMM"}
+        };
+        string ans;
+        int digit = 1; // 位数，初始为个位
+        while (num > 0)
+        {
+            int flag = num % 10 * digit;
+            auto itr = umap.find(flag);
+            if (flag)
+                ans.insert(0, itr->second); // 头部插入，这样位数小的在后面
+            digit *= 10; // 进入下一位
+            num /= 10;
+        }
+        return ans;
+    }
