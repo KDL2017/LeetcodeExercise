@@ -1,0 +1,26 @@
+    //3.无重复字符的最长字串 难度：中等 提示：滑动窗口，哈希表，双指针
+    //我的解题思路：
+    //  首先掌握哈希表用法（参考链接：https://blog.csdn.net/m0_70091181/article/details/135610035），这里使用unordered_set
+    //  从字符串s的第一个字符出发，找到以每一个字符为开头的最长字串
+    //      以abcabcbb为例，首先是a：abc，再是b：bca，再是c：cab，以此类推，此处需要循环体
+    //  记录每一次的字串长度，更新最大值
+    //  参考官方题解：https://leetcode.cn/problems/longest-substring-without-repeating-characters/solutions/227999/wu-zhong-fu-zi-fu-de-zui-chang-zi-chuan-by-leetc-2/
+    
+    //成功通过，2024/8/27
+    int lengthOfLongestSubstring(string s) {
+        int len = s.length(); //记录字符串s的长度
+        unordered_set<char> uset; //初始化unordered_set
+        int ans = 0, right = 0; //求解最大值ans,右指针right用于计算字串长度
+        for (int i = 0; i < len; ++i)
+        {
+            if (i != 0)
+                uset.erase(s[i - 1]); //左指针右移一位，移除哈希表中前一个字符
+            while (right < len && !uset.count(s[right]))
+            {
+                uset.insert(s[right]);
+                ++right; //右指针右移
+            }
+            ans = max(ans, right - i);
+        }
+        return ans;
+    }
