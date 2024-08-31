@@ -1,0 +1,49 @@
+    //8.字符串转换整数 难度：中等
+    //我的解题思路：
+    //  先处理丢弃前导空格
+    //  再根据非空格第一个字符判断是否为数字，以及正负号
+    //  中间遇到非数字字符或者字符串遍历完就结束
+    //  可能需要将数字字符（char）转换成整型（int）
+    //  该题也需要判断溢出
+
+    //成功通过，2024/8/29
+    int myAtoi(string s) {
+        int ans = 0;
+        bool flag = true; // 标记正负号
+        
+        while (s.front() == ' ') // 丢弃前导空格
+            s.erase(s.begin());
+           
+        if (s.front() != '-' && s.front() != '+' && !isdigit(s.front())) // 第一个非空字符的判断
+            return 0;
+
+        if (s.front() == '-')
+        {
+            s.erase(s.begin());
+            flag = false;
+        }
+        else if (s.front() == '+')
+            s.erase(s.begin());
+           
+        for (int i = 0; i < s.size(); i++)
+        {
+            if (!isdigit(s[i])) // 遇到非数字提前结束
+                break;
+
+            int tmp = int(s[i]) - 48; // 利用ASCII整型转换
+
+            if (flag) // 正负数分开讨论
+            {
+                if (ans > (INT_MAX - tmp) / 10) // 溢出判断，下同
+                    return INT_MAX;
+                ans = ans * 10 + tmp;
+            }
+            else
+            {
+                if (ans < (INT_MIN + tmp) / 10)
+                    return INT_MIN;
+                ans = ans * 10 - tmp;
+            }   
+        }
+        return ans;
+    }
