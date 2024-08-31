@@ -1,0 +1,41 @@
+    //5.最长回文子串 难度：中等 提示：动态规划
+    //我的解题思路：
+    //  以babad为例，bab和aba都符合题意
+    //  用一个二维数组flag表示两个位置之间的字串是否回文，如上例中flag[0][2]和flag[1][3]为True表示bab和aba回文
+    //  二维数组flag使用vector<vector<bool>>
+    //  判断得到flag二维数组，判断是否为回文串可以从子串长度2到字符串长度依次判断
+    //  这样问题转为在flag[i][j]为true的前提下求j-i+1的最大值，再得到字串
+    string longestPalindrome(string s) {
+        int n = s.size();
+        if (n < 2) // 字符串长度为1时直接返回
+            return s;
+
+        int maxLen = 1; // 记录回文字串最大长度
+        int begin = 0; // 标记回文字串起始位置
+
+        vector<vector<bool>> flag(n, vector<bool>(n));
+        for (int i = 0; i < n; ++i) // 所有长度为1的字串flag初始化为true
+            flag[i][i] = true;
+        for (int L = 2; L <= n; ++L) // 从字串长度为2开始判断
+        {
+            for (int i = 0; i < n; ++i) // 左边界从头开始
+            {
+                int j = L + i - 1; // 由左边界和子串长度L得右边界j
+                if (j >= n) break; // 右边界越界退出循环
+                if (s[i] != s[j]) // 字串左右两侧字符不同，flag为false
+                    flag[i][j] = false;
+                else // 字串左右两侧字符相同，分情况讨论
+                {
+                    if (L < 4) flag[i][j] = true; // 字串长度小于等于3时，字串一定回文
+                    else flag[i][j] = flag[i + 1][j - 1]; // 字串长度大于3时，flag和长度减2的字串相同，相当于头尾各去掉一个字符
+                }
+
+                if (flag[i][j] && j - i + 1 > maxLen)
+                {
+                    maxLen = j - i + 1;
+                    begin = i;
+                }
+            }
+        }
+        return s.substr(begin, maxLen); // substr()的用法，参考链接：https://blog.csdn.net/weixin_42557996/article/details/112245613
+    }
