@@ -1,0 +1,36 @@
+    //6.Z字形变换 难度：中等 提示：找规律
+    //我的解题思路：
+    //  既然变换规律已经知道，不如直接从原位置映射到新位置
+    //  以PAYPALISHIRING为例
+    //  假设numRows为3，变换后如下
+    //   P   A   H   N
+    //   A P L S I I G
+    //   Y   I   R
+    //  观察后可以发现，numRows已知时，可以将字符串按每（2numRows-2）个分为一组
+    //  组内前numRows个依序分别位于每一行，后几个则倒序分布在“Z”的斜边上
+
+    //成功通过，2024/8/28
+    //内心OS：竟然第一次提交就成功了，性能也不错，太欣慰了
+    string convert(string s, int numRows) {
+        if (numRows == 1) // numRows为1时直接返回原字符串
+            return s;
+        int lenGroup = 2 * numRows - 2; // 计算拆分成组后每组子字符串的长度
+        vector<string> tmp(numRows); // 用来存储每一行的字符串，最后拼接得到解
+        string ans;
+        int numGroup = s.size() % lenGroup ? (1 + s.size() / lenGroup) : s.size() / lenGroup; // 判断共可以拆成几组
+        for (int i = 0; i < numGroup; ++i) // 遍历每一组子字符串
+        {
+            for (int j = 0; j < lenGroup; ++j) // 对每组中的每个字符分情况讨论
+            {
+                if (j + i * lenGroup >= s.size()) // 越界跳出循环
+                    break;
+                if (j < numRows) // 前numRows个依序分别位于每一行
+                    tmp[j].push_back(s[j + i * lenGroup]);
+                else // 后几个倒序分布在“Z”的斜边上
+                    tmp[lenGroup - j].push_back(s[j + i * lenGroup]);
+            }
+        }
+        for (int i = 0; i < numRows; ++i) // 最后拼接
+            ans.append(tmp[i]);
+        return ans;
+    }
