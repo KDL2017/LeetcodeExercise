@@ -1,0 +1,113 @@
+    //4.寻找两个正序数组的中位数 难度：困难 提示：二分查找，分治
+    //困难点：时间复杂度要求为O(log(m+n))
+    //我的解题思路：
+    //  既然是找中位数，对于一个正序数列，即使去掉第一个和最后一个（即最小最大值），中位数不变
+    //  那么将该正序数列不断删减，最后剩下一个数则为中位数，剩下两个则取平均值
+    //  第一感觉是要同时遍历两个数组一遍，但这样时间复杂度超出要求
+
+    // 第一次尝试，利用递归，成功通过 2024/8/27
+    // 虽然不是最佳，但好歹是O(m+n)
+    // 内心OS：佩服自己写出来的屎山
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        if (nums1.size() == 1 && nums2.size() == 0)
+            return (double)nums1.back();
+        else if (nums1.size() == 0 && nums2.size() == 1)
+            return (double)nums2.back();
+        else if (nums1.size() == 1 && nums2.size() == 1)
+            return double((nums1.back() + nums2.back())) / 2;
+        else if (nums1.size() == 0 && nums2.size() > 1)
+        {
+            int len2 = nums2.size();
+            if (len2 % 2)
+                return (double)nums2[(len2 - 1) / 2];
+            else
+                return double((nums2[len2 / 2] + nums2[(len2 / 2) - 1])) / 2;
+        }
+        else if (nums1.size() > 1 && nums2.size() == 0)
+        {
+            int len1 = nums1.size();
+            if (len1 % 2)
+                return (double)nums1[(len1 - 1) / 2];
+            else
+                return double((nums1[len1 / 2] + nums1[(len1 / 2) - 1])) / 2;
+        }
+        else
+        {
+            if (nums1.front() <= nums2.front())
+                nums1.erase(nums1.begin());
+            else
+                nums2.erase(nums2.begin());
+            if (nums1.size() == 0)
+            {
+                nums2.pop_back();
+                return findMedianSortedArrays(nums1, nums2);
+            }
+            else if (nums2.size() == 0)
+            {
+                nums1.pop_back();
+                return findMedianSortedArrays(nums1, nums2);
+            }
+            if (nums1.back() >= nums2.back())
+                nums1.pop_back();
+            else
+                nums2.pop_back();
+            return findMedianSortedArrays(nums1, nums2);
+        }
+    }
+
+    //官方题解
+    //每次去除的不是头尾的一个元素，而是一段元素
+    //作者：力扣官方题解
+    //链接：https ://leetcode.cn/problems/median-of-two-sorted-arrays/solutions/258842/xun-zhao-liang-ge-you-xu-shu-zu-de-zhong-wei-s-114/
+    int getKthElement(const vector<int>& nums1, const vector<int>& nums2, int k) {
+        /* 主要思路：要找到第 k (k>1) 小的元素，那么就取 pivot1 = nums1[k/2-1] 和 pivot2 = nums2[k/2-1] 进行比较
+         * 这里的 "/" 表示整除
+         * nums1 中小于等于 pivot1 的元素有 nums1[0 .. k/2-2] 共计 k/2-1 个
+         * nums2 中小于等于 pivot2 的元素有 nums2[0 .. k/2-2] 共计 k/2-1 个
+         * 取 pivot = min(pivot1, pivot2)，两个数组中小于等于 pivot 的元素共计不会超过 (k/2-1) + (k/2-1) <= k-2 个
+         * 这样 pivot 本身最大也只能是第 k-1 小的元素
+         * 如果 pivot = pivot1，那么 nums1[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums1 数组
+         * 如果 pivot = pivot2，那么 nums2[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums2 数组
+         * 由于我们 "删除" 了一些元素（这些元素都比第 k 小的元素要小），因此需要修改 k 的值，减去删除的数的个数
+         */
+        int m = nums1.size();
+        int n = nums2.size();
+        int index1 = 0, index2 = 0;
+
+        while (true) {
+            // 边界情况
+            if (index1 == m) {
+                return nums2[index2 + k - 1];
+            }
+            if (index2 == n) {
+                return nums1[index1 + k - 1];
+            }
+            if (k == 1) {
+                return min(nums1[index1], nums2[index2]);
+            }
+
+            // 正常情况
+            int newIndex1 = min(index1 + k / 2 - 1, m - 1);
+            int newIndex2 = min(index2 + k / 2 - 1, n - 1);
+            int pivot1 = nums1[newIndex1];
+            int pivot2 = nums2[newIndex2];
+            if (pivot1 <= pivot2) {
+                k -= newIndex1 - index1 + 1;
+                index1 = newIndex1 + 1;
+            }
+            else {
+                k -= newIndex2 - index2 + 1;
+                index2 = newIndex2 + 1;
+            }
+        }
+    }
+
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        int totalLength = nums1.size() + nums2.size();
+        if (totalLength % 2 == 1) {
+            return getKthElement(nums1, nums2, (totalLength + 1) / 2);
+        }
+        else {
+            return (getKthElement(nums1, nums2, totalLength / 2) + getKthElement(nums1, nums2, totalLength / 2 + 1)) / 2.0;
+        }
+    }
