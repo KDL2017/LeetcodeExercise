@@ -1,0 +1,53 @@
+    //16.最接近的三数之和 难度：中等
+    //我的解题思路：
+    //  仿照上一题的思路，采用先排序，再双指针双循环遍历
+    //  排序后为不递减数列，右移左指针三数之和变大（或不变），左移右指针三数之和变小（或不变）
+
+    //成功通过，2024/9/2
+    //也是尝试了非常多遍，虽然成功通过了，但如下一个地方使我很困惑
+    //代码第732行起：
+    //if (second < third && nums[first] + nums[second] + nums[third] == target)
+    //    return nums[first] + nums[second] + nums[third];
+    //如果这里把second < third条件去掉，则会产生错误，错误的测试用例为[2,5,6,7],target=16
+    //程序输出16，但答案应该是15。显然16=5+5+6，我想不明白什么情况下才会让两个指针同时指向5
+    int threeSumClosest(vector<int>& nums, int target) {
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+        int ans = nums[0] + nums[1] + nums[n-1]; // 初始化，保证结果可由三数之和得到
+
+        for (int first = 0; first < n; ++first)
+        {
+            // 保证和上一次枚举的数不相同，可以节省时间
+            if (first > 0 && nums[first] == nums[first - 1])
+                continue;
+            int third = n - 1;
+            for (int second = first + 1; second < n; ++second)
+            { 
+                // 保证和上一次枚举的数不相同，可以节省时间
+                if (second > first + 1 && nums[second] == nums[second - 1])
+                    continue;   
+                // 如果三数之和恰为target，则直接返回
+                if (second < third && nums[first] + nums[second] + nums[third] == target)
+                    return nums[first] + nums[second] + nums[third];
+                // 满足条件则更新ans，也需要保证 b 的指针在 c 的指针的左侧
+                if (second < third && abs(nums[first] + nums[second] + nums[third] - target) < abs(ans - target))
+                    ans = nums[first] + nums[second] + nums[third];
+                // 需要保证 b 的指针在 c 的指针的左侧，且仅在三数之和大于target时左移third指针
+                while (second < third && nums[first] + nums[second] + nums[third] > target)
+                {  
+                    if (abs(nums[first] + nums[second] + nums[third] - target) < abs(ans - target))
+                        ans = nums[first] + nums[second] + nums[third];
+                    --third;
+                }
+                if (second == third)
+                    break;
+                // 如果三数之和恰为target，则直接返回
+                if (nums[first] + nums[second] + nums[third] == target)
+                    return nums[first] + nums[second] + nums[third];
+                // 满足条件则更新ans
+                else if (abs(nums[first] + nums[second] + nums[third] - target) < abs(ans - target))
+                    ans = nums[first] + nums[second] + nums[third];
+            }
+        }
+        return ans;
+    }
