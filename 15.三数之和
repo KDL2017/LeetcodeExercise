@@ -1,0 +1,86 @@
+    //15.三数之和 难度：中等
+    //我的解题思路：
+    //  首先既然要求不重复，可能用到哈希表，这里使用unordered_map<vector<int>, int>
+    //  如何判断三元组是否重复：可以想到两个三元组中只要有两个数字相同就一定相同
+    //  可能用到的：既然三个数字和为0，那么其中两数之和是另一个数字的相反数，而一个数字的和的情况是有限的
+    //    如1=0+1一种；2=0+2，2=1+1两种；3=0+3，3=1+2两种，以此类推
+    //    换言之，每次看两数之和，找到与这两数和为0的第三个数，判断此数是否已经和这两数组合过
+    //    如果该两数已经出现过，则直接跳过
+
+    //做不出来（2024/8/30,31,9/1）
+    /*vector<vector<int>> threeSum(vector<int>& nums) {
+        int n = nums.size();
+        //unordered_set<vector<int>> uset;
+        unordered_map<vector<int>, int> umap;
+        vector<vector<int>> ans;
+
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = i + 1; j < n; ++j)
+            {
+                for (int k = j + 1; k < n; ++k)
+                {
+                    if (nums[i] + nums[j] + nums[k] == 0)
+                    {
+                        vector<int> tmp = { nums[i],nums[j],nums[k] };
+                        if (umap.count(tmp))
+                            continue;
+                        else
+                        {
+                            umap.insert({ tmp,0 });
+                            ans.push_back(tmp);
+                        }
+                    }
+                }
+            }
+        }
+        return ans;
+    }*/
+
+    //利用官方题解思路自己写一遍代码（先挖一个坑）
+    vector<vector<int>> threeSum(vector<int>& nums) {
+
+    }
+   
+
+    //官方题解
+    //作者：力扣官方题解
+    //链接：https ://leetcode.cn/problems/3sum/solutions/284681/san-shu-zhi-he-by-leetcode-solution/
+    //来源：力扣（LeetCode）
+    //先排序，再利用双指针计算
+    //因为排序的时间复杂度为O(nlogn)，后面遍历数组需要的时间为O(n^2)
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> ans;
+        // 枚举 a
+        for (int first = 0; first < n; ++first) {
+            // 需要和上一次枚举的数不相同
+            if (first > 0 && nums[first] == nums[first - 1]) {
+                continue;
+            }
+            // c 对应的指针初始指向数组的最右端
+            int third = n - 1;
+            int target = -nums[first];
+            // 枚举 b
+            for (int second = first + 1; second < n; ++second) {
+                // 需要和上一次枚举的数不相同
+                if (second > first + 1 && nums[second] == nums[second - 1]) {
+                    continue;
+                }
+                // 需要保证 b 的指针在 c 的指针的左侧
+                while (second < third && nums[second] + nums[third] > target) {
+                    --third;
+                }
+                // 如果指针重合，随着 b 后续的增加
+                // 就不会有满足 a+b+c=0 并且 b<c 的 c 了，可以退出循环
+                if (second == third) {
+                    break;
+                }
+                if (nums[second] + nums[third] == target) {
+                    ans.push_back({ nums[first], nums[second], nums[third] });
+                }
+            }
+        }
+        return ans;
+    }
