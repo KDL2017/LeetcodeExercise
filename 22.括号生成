@@ -1,0 +1,34 @@
+    //22.括号生成 难度：中等 提示：动态规划，回溯
+    //我的解题思路：
+    //  有回溯，可以参考第17题
+    //  看到括号匹配问题，可以试试用栈实现
+
+    //没做出来，2024/9/4
+    //下面是对着官方题解写出来的
+    vector<string> generateParenthesis(int n) {
+        vector<string> ans;
+        string tmp;
+        backtrack(ans, n, 0, 0, tmp);
+        return ans;
+    }
+
+    //回溯函数
+    void backtrack(vector<string>& ans, int n, int nl, int nr, string& tmp) {
+        if (tmp.size() == n * 2) // 条件满足时，得到一个组合
+        {
+            ans.push_back(tmp);
+            return; // 注意这里与第17题不同，得到一个括号组合后应该重新开始
+        }
+        if (nl < n)
+        {
+            tmp.push_back('(');
+            backtrack(ans, n, nl + 1, nr, tmp);
+            tmp.pop_back();
+        }
+        if (nr < nl)
+        {
+            tmp.push_back(')');
+            backtrack(ans, n, nl, nr + 1, tmp);
+            tmp.pop_back();
+        }
+    }
