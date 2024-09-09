@@ -1,0 +1,37 @@
+    //17.电话号码的字母组合 难度：中等 提示：回溯，需要辅助函数
+    //我的解题思路：
+    //  既然每个字母都有对应的数字，第一想到就是用map
+    //  给的输入是字符串，需要转换（或许不需要转换，在map中使用char：string的键值对）
+    //  每个组合的长度是相同的
+
+    //成功通过，2024/9/3
+    //很明显时间复杂度为O(3^m * 4^n)
+    //回溯的代码运行逻辑比较复杂，有时间可以学习一下
+    vector<string> letterCombinations(string digits) {
+        vector<string> ans;
+        if (digits.empty())
+            return ans;
+        unordered_map<char, string> umap = {
+            {'2',"abc"},{'3',"def"},{'4',"ghi"},{'5',"jkl"},{'6',"mno"},{'7',"pqrs"},{'8',"tuv"},{'9',"wxyz"}
+        };
+
+        string tmp; // 用于存储每一个组合
+        backtrack(ans, umap, digits, 0, tmp);
+        return ans;
+    }
+
+    void backtrack(vector<string>& ans, const unordered_map<char, string>& umap, const string& digits, int index, string& tmp) {
+        if (index == digits.size()) // 长度满足时，得到一个组合
+            ans.push_back(tmp);
+        else
+        {
+            char digit = digits[index];
+            const string& letters = umap.at(digit); // 获取数字在map中对应的字母
+            for (const char& letter : letters)
+            {
+                tmp.push_back(letter);
+                backtrack(ans, umap, digits, index + 1, tmp);
+                tmp.pop_back(); // 回溯
+            }
+        }
+    }
