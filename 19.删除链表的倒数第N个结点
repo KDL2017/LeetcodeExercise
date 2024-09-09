@@ -1,0 +1,58 @@
+    //19.删除链表的倒数第 N 个结点 难度：中等 提示：双指针
+    //我的解题思路：
+    //  先遍历一遍得到链表长度，再遍历到待删除节点的位置
+
+    //成功通过，2024/9/4
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        int sz = 0;
+        ListNode* len_ptr = head;
+        while (len_ptr != nullptr)
+        {
+            ++sz;
+            len_ptr = len_ptr->next;
+        }
+        // 链表中只有一个节点，可直接返回空链表
+        if (sz == 1)
+            return nullptr;
+        // 删除第一个节点，也可直接返回
+        if (sz == n)
+            return head->next;
+
+        ListNode* left = head;
+        // 遍历直到left指针指向待删除节点的前驱节点
+        for (int i = sz - n - 1; i > 0; --i)
+            left = left->next;
+        left->next = (left->next)->next;
+        return head;
+    }
+
+    //进阶：尝试使用一趟扫描实现
+    //我的解题思路：
+    //  使用两个指针，先移动右指针，当两个指针之间的距离为n时，再同时移动两个指针
+    //  直到右指针指向最后一个节点，此时左指针指向待删除节点的前驱节点
+
+    //成功通过，2024/9/4
+    //但是时间表现竟然比上面还差
+    //看了评论发现所谓的一趟扫描实际上还是两趟（左指针和右指针各算一趟）
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        // 链表中只有一个节点，可直接返回空链表
+        if (head->next == nullptr)
+            return nullptr;
+        ListNode* left = head;
+        ListNode* right = head;
+        while (right->next != nullptr)
+        {
+            if (n > 0)
+            {
+                --n;
+                right = right->next;
+                continue;
+            }
+            right = right->next;
+            left = left->next;
+        }
+        if (n == 1)
+            return head->next;
+        left->next = (left->next)->next;
+        return head;
+    }
