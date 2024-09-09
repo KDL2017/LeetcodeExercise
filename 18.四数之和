@@ -1,0 +1,50 @@
+    //18.四数之和 难度：中等
+    //我的解题思路：
+    //  套用三数之和解题思路，不同的是前两个数用双重循环遍历，而不是仅仅第一个数
+    //  这样子时间复杂度来到O(n^3)
+
+    //成功通过，2024/9/3
+    //需要关注四数之和是否超过int范围
+    //跟官方题解相比还有提升空间，在于一些可以跳过部分计算的判断条件
+    //  例如对于first，如果first和排序后的数组最后三位数相加仍小于target，则后续不用遍历second了
+    //  second同理，如果first（已定），second和排序后的数组最后两位数相加仍小于target，则后续不用遍历left和right了
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        int n = nums.size();
+        vector<vector<int>> ans;
+        if (n < 4)
+            return ans;
+
+        sort(nums.begin(), nums.end());
+        for (int first = 0; first < n - 3; ++first)
+        {
+            if (first > 0 && nums[first] == nums[first - 1])
+                continue;
+            for (int second = first + 1; second < n - 2; ++second)
+            {
+                if (second > first + 1 && nums[second] == nums[second - 1])
+                    continue;
+                int left = second + 1, right = n - 1;
+                while (left < right)
+                {
+                    long sum = (long)nums[first] + nums[second] + nums[left] + nums[right];
+                    if (sum == target)
+                    {
+                        ans.push_back({ nums[first] , nums[second] , nums[left] , nums[right] });
+                        while (left < right && nums[left] == nums[left + 1]) {
+                            left++;
+                        }
+                        left++;
+                        while (left < right && nums[right] == nums[right - 1]) {
+                            right--;
+                        }
+                        right--;
+                    }
+                    else if (sum < target) 
+                        left++;
+                    else 
+                        right--;
+                }
+            }
+        }
+        return ans;
+    }
